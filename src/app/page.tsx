@@ -1,4 +1,5 @@
 import Logo from "@/components/logo";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export default function Home() {
@@ -20,8 +21,9 @@ export default function Home() {
           Use PetSoft to easily keep track of pets under your care.Get lifetime
           access for $290.
         </p>
-        <div className="mt-10">
-          <button>Sign up</button>
+        <div className="mt-10 space-x-4">
+          <Button>Get Started</Button>
+          <Button variant="secondary">Log In</Button>
         </div>
       </div>
     </main>
