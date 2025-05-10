@@ -1,5 +1,8 @@
+"use client";
 import Link from "next/link";
 import Logo from "./logo";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 const routes = [
   {
     label: "Dashboard",
@@ -12,6 +15,7 @@ const routes = [
 ];
 
 export default function AppHeader() {
+  const activePathname = usePathname();
   return (
     <header className="flex items-center justify-between border-b border-white/10 py-2">
       <Logo />
@@ -21,7 +25,10 @@ export default function AppHeader() {
             <li key={route.path}>
               <Link
                 href={route.path}
-                className="text-white/70 bg-black/10 rounded-sm px-2 py-1 hover:text-white focus:text-white transition"
+                className={cn(
+                  "text-white/70 bg-black/10 rounded-sm px-2 py-1 hover:text-white focus:text-white transition",
+                  { "bg-black/10 text-white": route.path === activePathname }
+                )}
               >
                 {route.label}
               </Link>
