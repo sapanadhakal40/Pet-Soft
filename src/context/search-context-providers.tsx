@@ -1,6 +1,4 @@
 "use client";
-
-import { Pet } from "@/lib/types";
 import { useState } from "react";
 import { createContext } from "react";
 
