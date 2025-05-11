@@ -1,9 +1,10 @@
 "use client";
 
-import { addPet } from "@/actions/actions";
+import { addPet, deletePet, editPet } from "@/actions/actions";
 import { Pet } from "@/lib/types";
-import { useState } from "react";
+import { useOptimistic, useState } from "react";
 import { createContext } from "react";
+import { toast } from "sonner";
 
 type PetContextProviderProps = {
   data: Pet[];
@@ -15,63 +16,69 @@ type TPetContext = {
   selectedPet: Pet | undefined;
   numberOfPets: number;
   handleCheckoutPet: (id: number) => void;
-  handleChangeSelectedPetId: (id: number) => void;
-  handleAddPet: (newPet: Omit<Pet, "id">) => void;
+  handleChangeSelectedPetId: (id: number) => Promise<void>;
+  handleAddPet: (newPet: Omit<Pet, "id">) => Promise<void>;
   handleEditPet: (petId: number, newPetData: Omit<Pet, "id">) => void;
 };
 
 export const PetContext = createContext<TPetContext | null>(null);
 
 export default function PetContextProvider({
-  data: pets,
+  data,
   children,
 }: PetContextProviderProps) {
   //state
   // const [pets, setPets] = useState(data);
+  const [optimisticPets, setOptimisticPets] = useOptimistic(
+    data,
+    (state, newPet) => {
+      return [
+        ...state,
+        {
+          ...newPet,
+          id: state.length + 1,
+        },
+      ];
+    }
+  );
   const [selectedPetId, setSelectedPetId] = useState<number | null>(null);
 
   //derived state
-  const selectedPet = pets.find((pet) => pet.id === selectedPetId);
-  const numberOfPets = pets.length;
+  const selectedPet = optimisticPets.find((pet) => pet.id === selectedPetId);
+  const numberOfPets = optimisticPets.length;
 
   //handlers
   const handleAddPet = async (newPet: Omit<Pet, "id">) => {
-    // setPets((prev) => [
-    //   ...prev,
-    //   {
-    //     id: Date.now(),
-    //     ...newPet,
-    //   },
-    // ]);
-    await addPet(newPet);
-  };
-  const handleEditPet = (petId: number, newPetData: Omit<Pet, "id">) => {
-    setPets((prev) =>
-      prev.map((pet) => {
-        if (pet.id === petId) {
-          return {
-            id: petId,
-            ...newPetData,
-          };
-        }
-        return pet;
-      })
-    );
+    setOptimisticPets(newPet);
+    const error = await addPet(newPet);
+    if (error) {
+      toast.warning(error.message);
+      return;
+    }
   };
 
-  const handleCheckoutPet = (id: number) => {
-    setPets((prev) => prev.filter((pet) => pet.id !== id));
+  const handleEditPet = async (petId: number, newPetData: Omit<Pet, "id">) => {
+    const error = await editPet(petId, newPetData);
+    if (error) {
+      toast.warning(error.message);
+      return;
+    }
+  };
+
+  const handleCheckoutPet = async (petId: number) => {
+    await deletePet(petId);
+
     setSelectedPetId(null);
   };
 
-  const handleChangeSelectedPetId = (id: number) => {
+  const handleChangeSelectedPetId = async (id: number) => {
     setSelectedPetId(id);
   };
 
   return (
     <PetContext.Provider
       value={{
-        pets,
+        pets: optimisticPets,
         selectedPetId,
         selectedPet,
         handleChangeSelectedPetId,
