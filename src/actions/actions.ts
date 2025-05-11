@@ -1,5 +1,6 @@
 "use server";
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 export async function addPet(formData) {
   const DEFAULT_IMAGE =
     "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
@@ -14,4 +15,5 @@ export async function addPet(formData) {
       notes: formData.get("notes"),
     },
   });
+  revalidatePath("/app", "layout");
 }
