@@ -47,3 +47,18 @@ export async function editPet(petId, formData) {
   }
   revalidatePath("/app", "layout");
 }
+
+export async function deletePet(petId) {
+  try {
+    await prisma.pet.delete({
+      where: {
+        id: petId,
+      },
+    });
+  } catch (error) {
+    return {
+      message: "Error deleting pet",
+    };
+  }
+  revalidatePath("/app", "layout");
+}
