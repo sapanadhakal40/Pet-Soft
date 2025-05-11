@@ -1,19 +1,28 @@
 "use server";
 import prisma from "@/lib/db";
+import { sleep } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 export async function addPet(formData) {
+  await sleep(2000);
   const DEFAULT_IMAGE =
     "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
 
-  console.log(formData);
-  await prisma.pet.create({
-    data: {
-      name: formData.get("name"),
-      ownerName: formData.get("ownerName"),
-      imageUrl: formData.get("imageUrl") || DEFAULT_IMAGE,
-      age: parseInt(formData.get("age")),
-      notes: formData.get("notes"),
-    },
-  });
+  // console.log(formData);
+
+  try {
+    await prisma.pet.create({
+      data: {
+        name: formData.get("name"),
+        ownerName: formData.get("ownerName"),
+        imageUrl: formData.get("imageUrl") || DEFAULT_IMAGE,
+        // age: parseInt(formData.get("age")),
+        notes: formData.get("notes"),
+      },
+    });
+  } catch (error) {
+    return {
+      message: "Error adding pet",
+    };
+  }
   revalidatePath("/app", "layout");
 }
