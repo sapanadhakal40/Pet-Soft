@@ -5,6 +5,8 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import PetFormBtn from "./pet-form-btn";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -17,6 +19,23 @@ type TPetForm = {
   age: number;
   notes: string;
 };
+const petFormSchema = z.object({
+  name: z.string().trim().min(1, { message: "Name is required" }).max(50),
+  ownerName: z
+    .string()
+    .trim()
+    .min(1, { message: "Owner name is required" })
+    .max(50),
+
+  imageUrl: z.union([
+    z.literal(""),
+    z.string().trim().url({ message: "Invalid URL" }),
+  ]),
+
+  age: z.number().int().positive().max(9999),
+  notes: z.union([z.literal(""), z.string().trim().max(500)]),
+});
+
 export default function PetForm({
   actionType,
   onFormSubmission,
@@ -28,7 +47,9 @@ export default function PetForm({
     trigger,
     handleSubmit,
     formState: { errors },
-  } = useForm<TPetForm>();
+  } = useForm<TPetForm>({
+    resolver: zodResolver(petFormSchema),
+  });
   return (
     <form
       action={async (formData) => {
@@ -75,16 +96,7 @@ export default function PetForm({
         </div>
         <div className="space-y-1">
           <Label htmlFor="ownerName">Owner Name</Label>
-          <Input
-            id="ownerName"
-            {...register("ownerName", {
-              required: "Owner Name is required",
-              minLength: {
-                value: 8,
-                message: "Owner Name must be at least 8 characters long",
-              },
-            })}
-          />
+          <Input id="ownerName" {...register("ownerName")} />
           {errors.ownerName && (
             <p className="text-red-500">{errors.ownerName.message}</p>
           )}
