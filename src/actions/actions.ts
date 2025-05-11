@@ -1,8 +1,10 @@
 "use server";
 import prisma from "@/lib/db";
+import { PetEssentials } from "@/lib/types";
+import { Pet } from "@prisma/client";
 // import { sleep } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
-export async function addPet(pet) {
+export async function addPet(pet: PetEssentials) {
   // await sleep(2000);
   const DEFAULT_IMAGE =
     "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
@@ -18,7 +20,7 @@ export async function addPet(pet) {
   }
   revalidatePath("/app", "layout");
 }
-export async function editPet(petId, newPetData) {
+export async function editPet(petId: Pet["id"], newPetData: PetEssentials) {
   try {
     await prisma.pet.update({
       where: {
@@ -34,7 +36,7 @@ export async function editPet(petId, newPetData) {
   revalidatePath("/app", "layout");
 }
 
-export async function deletePet(petId) {
+export async function deletePet(petId: Pet["id"]) {
   try {
     await prisma.pet.delete({
       where: {
