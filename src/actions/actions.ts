@@ -36,8 +36,8 @@ export async function logIn(prevState: unknown, formData: unknown) {
         }
       }
     }
+    throw error; // rethrow the error if it's not an AuthError
   }
-  redirect("/app/dashboard");
 }
 
 export async function signUp(prevstate: unknown, formData: unknown) {
