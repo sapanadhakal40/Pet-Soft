@@ -7,7 +7,7 @@ export default function Page() {
     <main className="max-w-md mx-auto ">
       <div className=" p-10 rounded-lg border border-zinc-200 shadow-md">
         <H1 className="text-center mb-4">Log In</H1>
-        <AuthForm type="login" />
+        <AuthForm type="logIn" />
 
         <p className="mt-4 text-sm text-zinc-500">
           Don&apos;t have an account?{" "}

@@ -7,7 +7,7 @@ export default function Page() {
     <main className="max-w-md mx-auto ">
       <div className=" p-8 rounded-lg border border-zinc-200 shadow-md">
         <H1 className="text-center mb-4">Sign Up</H1>
-        <AuthForm type="signup" />
+        <AuthForm type="signUp" />
 
         <p className="mt-4 text-sm text-zinc-500">
           Already have an account?{" "}
