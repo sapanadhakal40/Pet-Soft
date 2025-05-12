@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { getUserByEmail } from "./server-utils";
+import { authFormSchema } from "./validations";
 
 const prisma = new PrismaClient();
 
@@ -14,8 +15,13 @@ const config = {
   providers: [
     Credentials({
       async authorize(credentials) {
-        //runs on login
-        const { email, password } = credentials;
+        //validation of object
+        const validatedFormData = authFormSchema.safeParse(credentials);
+        if (!validatedFormData.success) {
+          return null;
+        }
+        //extract values
+        const { email, password } = validatedFormData.data;
 
         const user = await getUserByEmail(email);
         if (!user) {
@@ -71,4 +77,9 @@ const config = {
   },
 } satisfies NextAuthConfig;
 
-export const { auth, signIn, signOut } = NextAuth(config);
+export const {
+  auth,
+  signIn,
+  signOut,
+  handlers: { GET, POST },
+} = NextAuth(config);

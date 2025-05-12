@@ -2,7 +2,7 @@
 import { auth, signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { checkAuth } from "@/lib/server-utils";
-import { petFormSchema, petIdSchema } from "@/lib/validations";
+import { authFormSchema, petFormSchema, petIdSchema } from "@/lib/validations";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -11,10 +11,16 @@ import { getPetById } from "@/lib/server-utils";
 
 //-----User actions-----//
 
-export async function logIn(formData: FormData) {
+export async function logIn(formData: unknown) {
+  if (!formData) {
+    return {
+      message: "Invalid form data",
+    };
+  }
   await signIn("credentials", formData);
   redirect("/app/dashboard");
 }
+
 export async function signUp(formData: FormData) {
   const hashedPassword = await bcrypt.hash(
     formData.get("password") as string,
