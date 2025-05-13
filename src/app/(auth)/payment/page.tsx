@@ -13,7 +13,7 @@ export default function Page({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const [isPending, startTransition] = useTransition();
-  const { update } = useSession();
+  const { data: session, update, status } = useSession();
   const router = useRouter();
   return (
     <main className="flex flex-col items-center space-y-10">
@@ -26,6 +26,7 @@ export default function Page({
             //redirect to dashboard
             router.push("/app/dashboard");
           }}
+          disabled={status === "loading" || session?.user.hasAccess}
         >
           Access Petsoft
         </Button>
