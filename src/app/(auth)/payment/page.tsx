@@ -3,16 +3,26 @@
 import { createCheckoutSession } from "@/actions/actions";
 import H1 from "@/components/h1";
 import { Button } from "@/components/ui/button";
+import { useTransition } from "react";
 
-export default function page({ searchParams }) {
+export default function Page({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const [isPending, startTransition] = useTransition();
   return (
     <main className="flex flex-col items-center space-y-10">
       <H1>PetSoft access requires payment</H1>
 
       {!searchParams.success && (
         <Button
+          disabled={isPending}
           onClick={async () => {
-            await createCheckoutSession();
+            //start transition
+            startTransition(async () => {
+              await createCheckoutSession();
+            });
           }}
         >
           Buy lifetime access for $299
