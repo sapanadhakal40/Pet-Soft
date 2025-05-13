@@ -9,7 +9,10 @@ import { redirect } from "next/navigation";
 import { getPetById } from "@/lib/server-utils";
 import { Prisma } from "@prisma/client";
 import { AuthError } from "next-auth";
+
 // import { sleep } from "@/lib/utils";
+
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 //-----User actions-----//
 
@@ -204,4 +207,27 @@ export async function deletePet(petId: unknown) {
     };
   }
   revalidatePath("/app", "layout");
+}
+
+//-----Payment actions-----//
+
+export async function createCheckoutSession() {
+  // auth check
+  const session = await checkAuth();
+
+  //create checkout session
+  const checkoutSession = await stripe.checkout.sessions.create({
+    customer_email: session.user.email,
+    line_items: [
+      {
+        price: "price_1ROAkJ2VP3k3xDTQteQ2QL1v",
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${process.env.CANONICAL_URL}/payment?success=true`,
+    cancel_url: `${process.env.CANONICAL_URL}/payment?canceled=true`,
+  });
+
+  redirect(checkoutSession.url);
 }
