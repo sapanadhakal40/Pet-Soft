@@ -71,19 +71,26 @@ const config = {
       }
       return false;
     },
-    jwt: ({ token, user }) => {
+    jwt: async ({ token, user, trigger }) => {
       // runs on every request
       if (user) {
         token.userId = user.id;
+        token.email = user.email!;
         token.hasAccess = user.hasAccess;
+      }
+      if (trigger === "update") {
+        // if user is updated, update the token
+        const userFromDb = await getUserByEmail(token.email);
+
+        if (userFromDb) {
+          token.hasAccess = userFromDb.hasAccess;
+        }
       }
       return token;
     },
     session: ({ session, token }) => {
-      if (session.user) {
-        session.user.id = token.userId;
-        session.user.hasAccess = token.hasAccess;
-      }
+      session.user.id = token.userId;
+      session.user.hasAccess = token.hasAccess;
 
       return session;
     },
